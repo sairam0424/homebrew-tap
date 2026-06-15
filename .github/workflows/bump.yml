@@ -1,0 +1,43 @@
+name: Bump formula
+
+# Manually bump a formula to a new version: recomputes url + sha256 and opens a PR.
+# Run from the Actions tab → "Bump formula" → enter formula name + new version.
+on:
+  workflow_dispatch:
+    inputs:
+      formula:
+        description: "Formula to bump (ag-bash | mindforge)"
+        required: true
+        type: choice
+        options:
+          - ag-bash
+          - mindforge
+      version:
+        description: "New version (e.g. 6.0.3)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: macos-latest
+    steps:
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Bump formula and open PR
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORMULA: ${{ inputs.formula }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          brew tap sairam0424/tap "$GITHUB_WORKSPACE"
+          # brew bump-formula-pr resolves the new npm tarball URL + sha256 automatically
+          # for url-based formulae and opens the PR against this tap.
+          brew bump-formula-pr \
+            --no-browse \
+            --version="$VERSION" \
+            "sairam0424/tap/$FORMULA"
