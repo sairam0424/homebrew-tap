@@ -25,6 +25,9 @@ jobs:
   bump:
     runs-on: macos-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v5
+
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@848c272c7bfe984a197bd4d16383f4c106ec61e6 # main
 
