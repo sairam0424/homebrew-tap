@@ -25,9 +25,6 @@ jobs:
   bump:
     runs-on: macos-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v5
-
       - name: Set up Homebrew
         uses: Homebrew/actions/setup-homebrew@848c272c7bfe984a197bd4d16383f4c106ec61e6 # main
 
@@ -37,7 +34,12 @@ jobs:
           FORMULA: ${{ inputs.formula }}
           VERSION: ${{ inputs.version }}
         run: |
-          brew tap sairam0424/tap "$GITHUB_WORKSPACE"
+          # No local checkout: let brew manage its own clone of the tap into its
+          # taps directory. Passing $GITHUB_WORKSPACE as a path here (the previous
+          # form) required that path's git remote to string-match brew's expected
+          # canonical URL exactly, which actions/checkout's remote does not --
+          # this is the standard, documented Homebrew Actions recipe instead.
+          brew tap sairam0424/tap
           # brew bump-formula-pr resolves the new npm tarball URL + sha256 automatically
           # for url-based formulae and opens the PR against this tap.
           brew bump-formula-pr \
